@@ -1,18 +1,13 @@
-FROM alpine:edge
+# FROM alpine:edge
+FROM node:current-alpine3.19
 
 # install ffmpeg
-RUN apk update && apk add ffmpeg
+RUN apk update && apk add ffmpeg curl bash
 
 # install golang
-RUN apk add go
-
-# install golang
-# RUN yum install -y golang
-
-#install ffmpeg
-# RUN yum install -y epel-release
+# RUN apk add go
 
 WORKDIR /app
 # Set the default command to execute when the container starts
-# CMD ["/bin/bash"]
-CMD ["go", "run", "main.go"]
+CMD ["node index.js"]
+# CMD ["go", "run", "main.go"]
