@@ -20,6 +20,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(router);
 
+router.get('/', (_, res) => {
+  return res.status(200).json({ message: 'Server is running' });
+});
+
 router.post('/', upload.single('file'), (req, res) => {
   try {
     const name = req.body.name;
