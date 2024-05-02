@@ -34,7 +34,7 @@ router.post('/', upload.single('file'), (req, res) => {
     let ext = 'mp3';
     if (name.indexOf('.video') != -1) {
       ext = 'mp4';
-      args.push('-c:v', 'libx264');
+      args.push('-c:v', 'copy');
       // args.push('-q:v', '15');
     }
 
@@ -42,7 +42,7 @@ router.post('/', upload.single('file'), (req, res) => {
     execFileSync('ffmpeg', [...args, '-y', output]);
 
     const fileContent = readFileSync(output);
-    const destFileName = `${process.env.AWS_BUCKET_PATH}/${name}.${ext}`;
+    const destFileName = `${process.env.AWS_BUCKET_PATH}${name}.${ext}`;
 
     const command = new PutObjectCommand({
       ACL: 'public-read',
