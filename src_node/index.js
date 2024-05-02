@@ -35,23 +35,28 @@ router.post('/', upload.single('file'), (req, res) => {
     }
 
     const output = `tmp/${name}.${ext}`;
-    const result = execFileSync('ffmpeg', [...args, '-y', output]);
+    execFileSync('ffmpeg', [...args, '-y', output]);
 
     const fileContent = readFileSync(output);
-    console.log({ fileContent });
+    const destFileName = `${process.env.AWS_BUCKET_PATH}/${name}.${ext}`;
 
     const command = new PutObjectCommand({
       ACL: 'public-read',
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `test/${name}.${ext}`,
+      Key: destFileName,
       Body: fileContent,
     });
 
     client
       .send(command)
       .then((response) => {
-        console.log({ response });
-        return res.status(200).json({ message: 'File uploaded successfully' });
+        // console.log({ response });
+        const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${destFileName}`;
+        return res.status(200).json({
+          message: 'File uploaded successfully',
+          requestId: response.$metadata.requestId,
+          url,
+        });
       })
       .catch((err) => {
         console.error(err);
