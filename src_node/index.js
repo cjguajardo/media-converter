@@ -55,7 +55,7 @@ router.post('/', upload.single('file'), (req, res) => {
       .send(command)
       .then((response) => {
         // console.log({ response });
-        const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${destFileName}`;
+        const url = `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${destFileName}`;
         return res.status(200).json({
           message: 'File uploaded successfully',
           requestId: response.$metadata.requestId,
