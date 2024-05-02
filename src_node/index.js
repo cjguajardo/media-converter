@@ -42,7 +42,8 @@ router.post('/', upload.single('file'), (req, res) => {
     execFileSync('ffmpeg', [...args, '-y', output]);
 
     const fileContent = readFileSync(output);
-    const destFileName = `${process.env.AWS_BUCKET_PATH}${name}.${ext}`;
+    const folder = process.env.AWS_BUCKET_PATH || '';
+    const destFileName = `${folder}${name}.${ext}`;
 
     const command = new PutObjectCommand({
       ACL: 'public-read',
