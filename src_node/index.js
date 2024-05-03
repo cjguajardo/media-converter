@@ -43,7 +43,7 @@ router.post('/', upload.single('file'), (req, res) => {
       args.push('-strict', 'experimental');
       args.push('-c:a', 'aac');
       args.push('-b:a', '128k');
-      // args.push('-q:v', '15');
+      args.push('-q:v', '15');
     } else {
       args.push('-c:a', 'libmp3lame');
     }
