@@ -24,12 +24,17 @@ router.get('/', (_, res) => {
   return res.status(200).json({ message: 'Server is running' });
 });
 
+router.get('/recorder-test', (_, res) => {
+  return res.sendFile(`/app/html/index.html`);
+});
+
 router.post('/', upload.single('file'), (req, res) => {
   try {
     const name = req.body.name;
     const file = req.file;
 
-    const args = ['-loglevel', 'fatal', '-i', file.path, '-c:a', 'libmp3lame'];
+    // libmp3lame, aac
+    const args = ['-loglevel', 'fatal', '-i', file.path, '-c:a', 'acc'];
 
     let ext = 'mp3';
     if (name.indexOf('.video') != -1) {
