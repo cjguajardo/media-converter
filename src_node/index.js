@@ -34,13 +34,18 @@ router.post('/', upload.single('file'), (req, res) => {
     const file = req.file;
 
     // libmp3lame, aac
-    const args = ['-loglevel', 'fatal', '-i', file.path, '-c:a', 'acc'];
+    const args = ['-loglevel', 'fatal', '-i', file.path];
 
     let ext = 'mp3';
     if (name.indexOf('.video') != -1) {
       ext = 'mp4';
-      args.push('-c:v', 'copy');
+      args.push('-c:v', 'libx264');
+      args.push('-strict', 'experimental');
+      args.push('-c:a', 'aac');
+      args.push('-b:a', '128k');
       // args.push('-q:v', '15');
+    } else {
+      args.push('-c:a', 'libmp3lame');
     }
 
     const output = `tmp/${name}.${ext}`;
