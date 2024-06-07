@@ -4,8 +4,9 @@ services:
     env_file: .env
     volumes:
       - ./src_node:/app
+      - ./deps-install.sh:/app/deps-install.sh
     working_dir: '/app'
-    command: 'npm install'
+    command: ["/bin/sh", "-c", "./deps-install.sh"]
 
   media-convert-node:
     build: .
@@ -20,7 +21,7 @@ services:
     depends_on:
       deps-install:
         condition: service_completed_successfully
-        
+
   # webm-to-mpx-go:
     #  build: .
     #  env_file: .env

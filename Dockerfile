@@ -3,6 +3,7 @@ FROM node:current-alpine3.19
 
 # install ffmpeg
 RUN apk update && apk add ffmpeg curl bash
+RUN npm install -g npm@10.8.1
 
 # install golang
 # RUN apk add go

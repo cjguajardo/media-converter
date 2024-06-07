@@ -9,3 +9,4 @@
 **/.sqlite
 **/cgc-watermark.png
 **/redmin-watermark.png
+**/src_node/deps-install.sh
