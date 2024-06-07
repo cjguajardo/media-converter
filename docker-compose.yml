@@ -1,18 +1,29 @@
 version: '3.3'
 
 services:
+  deps-install:
+    image: node:current-alpine3.19
+    env_file: .env
+    volumes:
+      - ./src_node:/app
+    working_dir: '/app'
+    command: 'npm install'
+
   media-convert-node:
     build: .
     env_file: .env
-    restart: on-failure
+    restart: always
     ports:
       - 3001:3001
     volumes:
       - ./src_node:/app
     working_dir: '/app'
     command: 'node index.js'
-
-    # webm-to-mpx-go:
+    depends_on:
+      deps-install:
+        condition: service_completed_successfully    
+        
+  # webm-to-mpx-go:
     #  build: .
     #  env_file: .env
     #  restart: on-failure
