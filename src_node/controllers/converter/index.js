@@ -177,38 +177,4 @@ export default {
       return res.status(500).json({ message: ex.message })
     }
   },
-
-  static: (req, res) => {
-    try {
-      const name = req.body.name
-      const file = req.file
-      const path = req.body.path
-
-      const args = []
-
-      let ext = 'mp3'
-      if (name.indexOf('.video') != -1) {
-        const videoParams = ffmpeg.getBasicVideoParams(file.path)
-        args.push(...videoParams)
-      } else {
-        const audioParams = ffmpeg.getBasicAudioParams(file.path)
-        args.push(...audioParams)
-      }
-
-      const output = `tmp/${name}.${ext}`
-      const fileContent = ffmpeg.convert(output, args)
-      const folder = path ? path : process.env.AWS_BUCKET_PATH || ''
-      const destFileName = `${folder}${name}.${ext}`
-
-      upload({ destFileName, fileContent })
-        .then((response) => {
-          return res.status(200).json(response)
-        })
-        .catch((error) => {
-          return res.status(500).json(error)
-        })
-    } catch (ex) {
-      return res.status(500).json({ message: ex.message })
-    }
-  },
 }

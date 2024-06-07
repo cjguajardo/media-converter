@@ -32,7 +32,6 @@ router.get('/recorder-test', (_, res) => {
   return res.sendFile(`/app/html/index.html`)
 })
 
-router.post('/', upload.single('file'), converterController.static)
 router.post('/convert', upload.single('file'), converterController.auto)
 
 router.post('/login', authController.login)
