@@ -1,8 +1,6 @@
-version: '3.3'
-
 services:
   deps-install:
-    image: node:current-alpine3.19
+    image: node:22
     env_file: .env
     volumes:
       - ./src_node:/app
@@ -14,14 +12,14 @@ services:
     env_file: .env
     restart: always
     ports:
-      - 3001:3001
+      - 8099:3001
     volumes:
       - ./src_node:/app
     working_dir: '/app'
     command: 'node index.js'
     depends_on:
       deps-install:
-        condition: service_completed_successfully    
+        condition: service_completed_successfully
         
   # webm-to-mpx-go:
     #  build: .
