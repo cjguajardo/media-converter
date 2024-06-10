@@ -12,6 +12,7 @@ RUN npm install -g npm@10.8.1
 WORKDIR /app
 
 COPY src_node/dist /app
+COPY src_node/html /app/html
 # COPY src_node /app_src
 # COPY deps-install.sh /app
 

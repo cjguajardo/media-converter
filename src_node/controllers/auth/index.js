@@ -1,4 +1,4 @@
-import { execute } from '../../utils/db.js'
+import { getClient } from '../../utils/db.js'
 import JWT from '../../utils/jwt.js'
 import { createHmac } from 'node:crypto'
 
@@ -13,7 +13,8 @@ export default {
 
     console.log({ key, secret, hashed })
 
-    const result = await execute({
+    const db = getClient()
+    const result = await db.execute({
       sql: 'SELECT * FROM keys WHERE ID = ?',
       args: [key],
     })
