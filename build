@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# This script is used to generate a production build of the application
+
+SRC_PATH="$(pwd)/src_node"
+
+# remove package-lock.json
+rm -f src_node/package-lock.json
+# remove node_modules
+rm -rf src_node/node_modules
+
+# install dependencies
+echo "Installing dependencies..."
+docker run --rm -v $SRC_PATH:/app \
+  -w /app \
+  --name media-converter-dep-installer \
+  node:22 npm install --no-fund --no-audit
+
+# remove dist folder
+rm -rf src_node/dist
+
+# create build
+echo "Creating build..."
+docker run --rm -v $SRC_PATH:/app \
+  --env-file .env \
+  -w /app \
+  node:22 npm run build
+
+echo "Building the application..."
+docker build -t media-converter:latest .
+
+docker stop media-converter
+
+echo "Running the application..."
+docker run --rm -p 8080:3001 \
+  --env-file .env \
+  --name media-converter \
+  media-converter:latest

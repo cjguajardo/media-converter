@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SRC_PATH="$(pwd)/src_node"
+
+docker run \
+  --rm -v $SRC_PATH:/app \
+  -w /app \
+  --env-file .env \
+  node:current-alpine3.19 npm run test
