@@ -29,7 +29,6 @@ jobs:
           IMAGE_TAG=$(curl -s https://raws.redmin.cl/ecr/$AWS_REGION/media-converter/lastTag?element=nextTag)
           npm install
           npm run build
-          rm -rf node_modules
           cd ../
 
       - name: Configure AWS credentials
