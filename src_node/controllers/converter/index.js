@@ -98,11 +98,11 @@ export default {
       // response.f = file;
 
       if (fileType === 'video' && output === fileType) {
-        const video_frame_path = ffmpeg.getVideoFrame(output_path, '00:00:01')
+        const video_frame_path = ffmpeg.getVideoFrame(output_path, '00:00:02')
         paths_for_cleanup.push(video_frame_path)
         const video_dimensions = ffmpeg.getVideoDimensions(file.path)
         response.frame = video_frame_path
-        response.dimentions = video_dimensions
+        response.dimensions = video_dimensions
         if (video_dimensions.width > video_dimensions.height) {
           response.orientation = 'landscape'
         } else {
@@ -111,11 +111,12 @@ export default {
       }
 
       if (output === 'video') {
+        const dims = `${response.dimensions.width}x${response.dimensions.height}`
         if (fileType === 'video') {
           const mode = response.orientation === 'landscape' ? 'h' : 'v'
-          response.filename = `${file.filename}-${duration}s-${mode}.mp4`
+          response.filename = `${file.filename}-${duration}s-${mode}-${dims}.mp4`
         } else {
-          response.filename = `${file.filename}-${duration}s-h.mp4`
+          response.filename = `${file.filename}-${duration}s-h-${dims}.mp4`
         }
       } else {
         response.filename = `${file.filename}-${duration}s.mp3`
@@ -131,7 +132,12 @@ export default {
         const folder = path ? path : process.env.AWS_BUCKET_PATH || ''
         const destFileName = `${folder}${response.filename}`
 
-        const resp1 = await upload({ destFileName, fileContent })
+        const mimeType = output === 'video' ? 'video/mp4' : 'audio/mp3'
+        const resp1 = await upload({
+          destFileName,
+          fileContent,
+          mimeType
+        })
         console.log({ resp1 })
         if (resp1) {
           response.file = resp1.url
@@ -142,6 +148,7 @@ export default {
           const resp2 = await upload({
             destFileName: destFrameName,
             fileContent: frameContent,
+            mimeType: 'image/jpg',
           })
           console.log({ resp2 })
           if (resp2) {
@@ -149,7 +156,6 @@ export default {
           }
         }
       } else {
-        const mimeType = output === 'video' ? 'video/mp4' : 'audio/mp3'
         response.file =
           `data:${mimeType};base64,` + fileContent.toString('base64')
 
