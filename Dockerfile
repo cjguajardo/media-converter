@@ -13,6 +13,7 @@ WORKDIR /app
 
 COPY src_node/dist /app
 COPY src_node/html /app/html
+RUN mkdir /app/tmp
 # COPY src_node /app_src
 # COPY deps-install.sh /app
 
