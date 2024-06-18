@@ -3,6 +3,7 @@ import multer from 'multer'
 import os from 'os'
 import converterController from './controllers/converter/index.js'
 import authController from './controllers/auth/index.js'
+import uiController from './controllers/ui/index.js'
 import JWT from './utils/jwt.js'
 
 const upload = multer({ dest: os.tmpdir() })
@@ -24,16 +25,19 @@ router.use((req, res, next) => {
   next()
 })
 
-router.get('/status', (_, res) => {
-  return res.status(200).json({ message: 'Server is running' })
-})
+router.get('/', uiController.index)
+router.get('/status', uiController.index)
 
-router.get('/recorder-test', (_, res) => {
-  return res.sendFile(`/app/html/index.html`)
-})
+router.get('/demo/login', uiController.login)
+router.get('/demo/test', uiController.test)
 
 router.post('/convert', upload.single('file'), converterController.auto)
 
 router.post('/login', authController.login)
+
+// redirect .css and .js files to /app/html
+router.get('/*.(css|js|ico|png|mp4|mp3)', (_, res) => {
+  return res.sendFile(`/app/html${_.url}`)
+})
 
 export default router
