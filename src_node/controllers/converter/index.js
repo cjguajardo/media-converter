@@ -1,4 +1,5 @@
 import * as ffmpeg from '../../utils/ffmpeg.js'
+import * as ffjpeg from '../../utils/ffjpeg.js'
 import { upload } from '../../utils/s3.js'
 import { readFileSync } from 'node:fs'
 import { unlink } from 'node:fs/promises'
@@ -100,7 +101,9 @@ export default {
       if (fileType === 'video' && output === fileType) {
         const video_frame_path = ffmpeg.getVideoFrame(output_path, '00:00:02')
         paths_for_cleanup.push(video_frame_path)
-        const video_dimensions = ffmpeg.getVideoDimensions(file.path)
+        // const video_dimensions = ffmpeg.getVideoDimensions(file.path)
+        const video_dimensions = await ffjpeg.getFrameDimensions(video_frame_path)
+        console.log('Video dimensions: ', { video_dimensions })
         response.frame = video_frame_path
         response.dimensions = video_dimensions
         if (video_dimensions.width > video_dimensions.height) {
