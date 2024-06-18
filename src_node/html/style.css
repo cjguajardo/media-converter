@@ -1,0 +1,139 @@
+body {
+  background-color: black;
+  color: white;
+  padding: 0.25rem;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+button {
+  padding: .5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin: .125rem;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: .25rem;
+  cursor: pointer;
+}
+
+button.primary {
+  background-color: #007bff;
+}
+
+button.secondary {
+  background-color: #6c757d;
+}
+
+button.danger {
+  background-color: #dc3545;
+}
+
+code {
+  background-color: #333;
+  color: white;
+  padding: .25rem;
+  border-radius: .25rem;
+  width: calc(100%-.5rem);
+  display: block;
+  min-height: 150px;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: auto;
+  text-wrap: balance;
+}
+
+video {
+  width: 100%;
+  height: auto;
+  border-radius: .25rem;
+  border: 1px solid #333;
+}
+
+form {
+  background-color: #ffffff1d;
+  border-radius: .5rem;
+  padding: .5rem;
+  margin-bottom: 1rem;
+}
+
+form>div {
+  display: grid;
+  grid-template-columns: 2fr 4fr;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+form input {
+  padding: .5rem;
+  margin: .125rem;
+  border-radius: .25rem;
+  border: 1px solid #333;
+}
+
+form label {
+  margin: .125rem;
+  /* text-align: right; */
+  padding-right: .5rem;
+}
+
+.time_display {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.loader {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #33333372;
+}
+
+.loader__spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 1rem solid;
+  animation: 1s ease-in rotation__animation infinite;
+  transition-behavior: smooth;
+}
+
+@keyframes rotation__animation {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#button_container {
+  display: flex;
+  justify-content: space-evenly;
+  place-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#button_container button {
+  width: 100%;
+}
+
+#video_preview {
+  display: none;
+}
+
+#video_output {
+  display: none;
+}

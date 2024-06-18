@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Converter - Login</title>
+  <link rel="stylesheet" href="/style.css" />
+  <script src="/scripts/console.js"></script>
+</head>
+
+<body>
+  <main class="container">
+    <form id="loginForm">
+      <div>
+        <label for="key">Key</label>
+        <input type="text" id="key" name="key" required value="">
+      </div>
+      <div>
+        <label for="secret">Secret</label>
+        <input type="secret" id="secret" name="secret" required value="">
+      </div>
+    </form>
+    <button class="primary" type="button" onclick="do_login()">Login</button>
+    <code id="console_log"></code>
+  </main>
+  <script>
+    function do_login () {
+      const myHeaders = new Headers()
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded")
+
+      const key = document.querySelector('#key').value
+      const secret = document.querySelector('#secret').value
+
+      const urlencoded = new URLSearchParams()
+      urlencoded.append("key", key)
+      urlencoded.append("secret", secret)
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: urlencoded,
+      }
+
+      fetch("/login", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result)
+          if (typeof result.token !== 'undefined') {
+            sessionStorage.setItem('token', result.token)
+            window.location.href = '/demo/test'
+          }
+        })
+        .catch((error) => console.error(error))
+    }
+  </script>
+</body>
+
+</html>
