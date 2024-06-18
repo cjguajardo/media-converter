@@ -6,7 +6,7 @@ import {
 } from 'node:crypto'
 
 class JWT {
-  #EXP_TIME = 60; // 30 days = 30 * 24 * 60 * 60; 5 minutes = 300; 2 minutes = 120
+  #EXP_TIME = process.env.JWT_TTL; // 30 days = 30 * 24 * 60 * 60; 5 minutes = 300; 2 minutes = 120
   #ALGO = 'aes-256-cbc';
 
   constructor() {
