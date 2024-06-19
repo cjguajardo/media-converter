@@ -1,15 +1,26 @@
-import Calipers from 'calipers'
+import { constants, access } from "node:fs/promises"
+import { readFileSync } from "node:fs"
+import sizeOf from "buffer-image-size"
 
-export const getFrameDimensions = async (filePath) => {
-  return new Promise((resolve, _) => {
-    Calipers('jpeg').measure(filePath, function (err, result) {
-      if (err) {
-        console.error(err)
-        resolve(null)
-      } else {
-        resolve(result.pages[0])
+export const getFrameDimensions = (filePath) => {
+  console.log(filePath)
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!filePath) reject('filePath is required')
+      const full_path = `/app/${filePath}`
+
+      try {
+        await access(full_path, constants.F_OK)
+        const buffer = readFileSync(full_path)
+        const dimensions = sizeOf(buffer)
+        resolve(dimensions)
+      } catch (err) {
+        reject(err)
       }
-    })
+    } catch (err) {
+      console.log(err)
+      reject(err)
+    }
   })
 }
 
