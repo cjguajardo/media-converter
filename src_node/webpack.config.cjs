@@ -10,7 +10,4 @@ module.exports = {
     filename: 'server.js',
   },
   target: 'node',
-  externals: {
-    express: 'commonjs express',
-  },
 }
