@@ -17,7 +17,7 @@ services:
     volumes:
       - ./src_node:/app
     working_dir: '/app'
-    command: 'node index.js'
+    command: 'node_modules/.bin/nodemon index.js'
     depends_on:
       deps-install:
         condition: service_completed_successfully
