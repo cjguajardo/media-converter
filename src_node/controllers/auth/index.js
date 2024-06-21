@@ -2,6 +2,26 @@ import { getClient } from '../../utils/db.js'
 import JWT from '../../utils/jwt.js'
 import { createHmac } from 'node:crypto'
 
+const upsertTokenRow = async (db, account, token) => {
+  db.execute({
+    sql: 'SELECT * FROM tokens WHERE KEY_ID = ?',
+    args: [account.ID],
+  }).then((result) => {
+    const now = Math.round(new Date().getTime() / 1000)
+    if (result.rows.length > 0) {
+      db.execute({
+        sql: "UPDATE tokens SET TOKEN = ?, EXPIRE = ?, CALLBACK_URL = ?, UPDATED_AT = ? WHERE KEY_ID = ?",
+        args: [token.token, token.exp, account.CALLBACK_URL, now, account.ID],
+      })
+    } else {
+      db.execute({
+        sql: 'INSERT INTO tokens (KEY_ID, TOKEN, EXPIRE, CALLBACK_URL, CREATED_AT, UPDATED_AT) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [account.ID, token.token, token.exp, account.CALLBACK_URL, now, now],
+      })
+    }
+  })
+}
+
 export default {
   login: async (req, res) => {
     const key = req.body.key
@@ -11,20 +31,20 @@ export default {
       .update(secret)
       .digest('hex')
 
-    console.log({ key, secret, hashed })
-
     const db = getClient()
-    const result = await db.execute({
-      sql: 'SELECT * FROM keys WHERE ID = ?',
+    let account = await db.execute({
+      sql: 'SELECT * FROM accounts WHERE ID = ?',
       args: [key],
     })
 
-    if (result && result.rows.length > 0) {
-      console.log({ _1: hashed, _2: result.rows[0].SECRET })
-      if (result.rows[0].SECRET == hashed) {
+    if (account && account.rows.length > 0) {
+      account = account.rows[0]
+      if (account.SECRET === hashed) {
         const jwt = new JWT()
-        const token = jwt.generate(key)
         // generate Token
+        const token = jwt.generate(key, account)
+        // append or update token in db
+        await upsertTokenRow(db, account, token)
         return res.send(token)
       }
     }
