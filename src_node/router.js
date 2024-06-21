@@ -6,13 +6,14 @@ import authController from './controllers/auth/index.js'
 import uiController from './controllers/ui/index.js'
 import JWT from './utils/jwt.js'
 import { getClient } from './utils/db.js'
+import checkVerifier from './helpers/check_verifier.js'
 
 const upload = multer({ dest: os.tmpdir() })
 const router = express.Router()
 
 const protected_urls = ['POST::/convert']
 
-router.use((req, res, next) => {
+router.use(async (req, res, next) => {
   const { url, method, headers } = req
   const userAgent = headers['user-agent'] ?? 'unknown'
   const host = headers['host'] ?? 'unknown'
@@ -20,25 +21,54 @@ router.use((req, res, next) => {
   const x_forwarded_host = headers['x-forwarded-host'] ?? 'unknown'
   const x_forwarded_proto = headers['x-forwarded-proto'] ?? 'unknown'
 
-
   if (protected_urls.indexOf(`${method}::${url}`) != -1) {
-    const token = req.headers['authorization']?.replace('Bearer ', '')
+    const token = headers['authorization']?.replace('Bearer ', '')
+    const verifier_token = headers['verifier'] ?? null
     const jwt = new JWT()
-    const valid_token = jwt.check(token)
-    console.log(
-      method, url,
-      {
-        userAgent, host, referer,
-        x_forwarded_host, x_forwarded_proto
-      }, valid_token)
+    const valid_token = await jwt.check(token)
+
     const db = getClient()
     db.execute({
       sql: 'INSERT INTO requests (URL, METHOD, USER_AGENT, HOST, REFERER, X_FORWARDED_HOST, X_FORWARDED_PROTO, VALID_TOKEN, CREATED_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       args: [url, method, userAgent, host, referer, x_forwarded_host, x_forwarded_proto, `${valid_token}`, Date.now()]
     })
+
     if (!valid_token) {
-      return res.sendStatus(403)
+      return res.status(400).send({ error: 'Invalid token' })
     }
+
+    const decoded = jwt.get_decoded(token)
+    if (!decoded) {
+      return res.status(400).send({ error: 'Invalid token' })
+    }
+
+    const { payload: decoded_payload } = decoded
+    const account = await db.execute({
+      sql: 'SELECT * FROM accounts WHERE ID = ?',
+      args: [decoded_payload.sub]
+    })
+
+    if (!account || account.rows.length == 0) {
+      return res.status(400).send({ error: 'Account not found' })
+    }
+
+    if (account.rows[0].CALLBACK_URL != decoded_payload.callback) {
+      return res.status(400).send({ error: 'Callback URL mismatch' })
+    }
+
+    if (account.rows[0].CALLBACK_URL && account.rows[0].CALLBACK_URL != '') {
+      if (!verifier_token) {
+        return res.status(403).send({ error: 'Missing verifier token' })
+      }
+
+      const success = await checkVerifier(account.rows[0].CALLBACK_URL, verifier_token)
+      console.log('pass verification', { success })
+
+      if (success === false) {
+        return res.status(403).send({ error: 'Verifier token mismatch' })
+      }
+    }
+
   }
   next()
 })
