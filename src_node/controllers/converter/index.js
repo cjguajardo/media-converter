@@ -186,4 +186,56 @@ export default {
       return res.status(500).json({ message: ex.message })
     }
   },
+  webToImg: async (req, res) => {
+    try {
+      const {
+        url, returnAs,
+        generateMobile,
+        compress, quality, outputMime, maxWidth, maxHeight
+      } = req.body
+      if (!url) {
+        return res.status(400).json({ message: 'You must provide a URL' })
+      }
+      const desktop = await ffjpeg.webToImg(url, false)
+      const mobile = generateMobile ? await ffjpeg.webToImg(url, true) : null
+
+      const getReturnFormat = async (img) => {
+        console.log('ENTRA', { img })
+        let mime = 'image/jpeg'
+        if (compress) {
+          img = await ffjpeg.compressImage(img, {
+            quality: quality || 80,
+            outputMimeType: outputMime || 'image/jpeg',
+            maxWidth, maxHeight
+          })
+          mime = outputMime || 'image/jpeg'
+        }
+        console.log('SALE', { img })
+
+        if (returnAs === 'base64') {
+          // get mime type
+          return `data:${mime};base64,${img.toString('base64')}`
+        }
+        return img
+      }
+
+      if (desktop && mobile) {
+        return res.send({
+          desktop: await getReturnFormat(desktop),
+          mobile: await getReturnFormat(mobile)
+        })
+      } else {
+        if (desktop) {
+          return res.send({ desktop: await getReturnFormat(desktop) })
+        }
+        if (mobile) {
+          return res.send({ mobile: await getReturnFormat(mobile) })
+        }
+      }
+      return res.status(500).json({ message: 'Failed to convert URL to image' })
+    } catch (err) {
+      console.error({ err })
+      return res.status(500).json({ message: err.message })
+    }
+  }
 }

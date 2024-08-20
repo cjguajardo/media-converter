@@ -6,6 +6,9 @@ FROM node:22
 RUN apt-get update && apt-get install -y ffmpeg curl bash
 RUN npm install -g npm@10.8.1
 
+RUN npx playwright install
+RUN npx playwright install-deps
+
 # install golang
 # RUN apk add go
 

@@ -68,7 +68,6 @@ router.use(async (req, res, next) => {
         return res.status(403).send({ error: 'Verifier token mismatch' })
       }
     }
-
   }
   next()
 })
@@ -78,8 +77,14 @@ router.get('/status', uiController.index)
 
 router.get('/demo/login', uiController.login)
 router.get('/demo/test', uiController.test)
-
+/**
+ * Converts and compress audio and video
+ */
 router.post('/convert', upload.single('file'), converterController.auto)
+/**
+ * Take screenshots of any website
+ */
+router.post('/web-to-img', converterController.webToImg)
 
 router.post('/login', authController.login)
 
