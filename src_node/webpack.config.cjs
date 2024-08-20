@@ -1,5 +1,6 @@
 // import path from 'path'
 const path = require('path')
+const webpack = require('webpack')
 
 module.exports = {
   mode: 'production',
@@ -13,6 +14,20 @@ module.exports = {
   stats: {
     errorDetails: true
   },
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^sharp$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^express$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^playwright$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^iconv-lite$/
+    })
+  ],
   module: {
     rules: [
       {

@@ -1,7 +1,17 @@
 #!/bin/bash
 
-# This script is used to generate a production build of the application
+# Load .env file
+if [ -f .env ]; then
+  source .env
+else
+  echo ".env file not found!"
+  exit 1
+fi
+AWS_REGION=us-west-2
 
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+
+# This script is used to generate a production build of the application
 SRC_PATH="$(pwd)/src_node"
 
 # remove package-lock.json
@@ -27,12 +37,8 @@ docker run --rm -v $SRC_PATH:/app \
   node:22 npm run build
 
 echo "Building the application..."
-docker build -t media-converter:latest .
+IMAGE_TAG=$(curl -s https://raws.redmin.cl/ecr/$AWS_REGION/media-converter/lastTag?element=nextTag)
+docker build -t $ECR_REGISTRY/media-converter:$IMAGE_TAG .
+docker push $ECR_REGISTRY/media-converter:$IMAGE_TAG
 
-docker stop media-converter
-
-echo "Running the application..."
-docker run --rm -p 8080:3001 \
-  --env-file .env \
-  --name media-converter \
-  media-converter:latest
+echo "DONE!"
