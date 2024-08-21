@@ -1,17 +1,21 @@
 import express from 'express'
 import router from './router.js'
 import { init } from './utils/db.js'
+import fs from 'node:fs'
+import Cors from './utils/cors.js'
 
-origins = process.env.ALLOWED_ORIGINS?.split(',') ?? '*'
+
+// Create tmp folder
+if (!fs.existsSync("/app/tmp")) {
+  fs.mkdirSync("/app/tmp")
+}
 
 const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.all('*', (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", origins)
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-  next()
-})
+// Set cors
+app.all('*', Cors.preflight)
+app.options('*', Cors.options)
 // After all other middleware and routes
 app.use((err, req, res, next) => {
   console.error(err.stack) // Log error stack to console
