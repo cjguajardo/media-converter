@@ -119,12 +119,29 @@ export default {
         fileContent = readFileSync(output_path);
       }
 
-      console.log('1', { response });
+      const audioExists = ffmpeg.hasAudio(output_path)
+      response.audio_video = audioExists
+
+      let textToAdd = "-vau"
+      if(audioExists === true || audioExists === 1){
+        textToAdd += "1"
+      } else {
+        textToAdd += "0"
+      }
+
+      // Verificar si `textToAdd` ya está presente
+      if (response.filename.includes(textToAdd)) {
+        let index = response.filename.lastIndexOf(".mp4")
+        // Insertar el texto justo antes de .mp4
+        response.filename = response.filename.slice(0, index) + textToAdd + response.filename.slice(index)
+      }
+
+      // console.log('1', { response });
       postConvertActions(response, fileContent, {
         output,
         action: post_convert,
       });
-      console.log('2', { response });
+      // console.log('2', { response });
 
       // cleanup
       for (let p of paths_for_cleanup) {

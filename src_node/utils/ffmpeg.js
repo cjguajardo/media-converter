@@ -155,3 +155,31 @@ export const putWatermark = (filePath, watermarkPath) => {
   // console.log(result.toString());
   return output_path
 }
+
+export const hasAudio = (filePath) => {
+  // Configuración de los argumentos para ffprobe
+  const args = [
+    '-loglevel',
+    'fatal',
+    '-show_streams',
+    '-select_streams',
+    'a', // Seleccionar solo flujos de audio
+    '-of',
+    'default=noprint_wrappers=1:nokey=1',
+    filePath,
+  ]
+
+  try {
+    // Ejecutar ffprobe y capturar la salida
+    const output = execFileSync('ffprobe', args).toString().trim()
+
+    // Si hay alguna salida, el video contiene audio
+    const hasAudio = output.length > 0
+    console.log('Has Audio:', hasAudio)
+
+    return hasAudio
+  } catch (error) {
+    console.error('Error checking audio:', error)
+    return false
+  }
+}
