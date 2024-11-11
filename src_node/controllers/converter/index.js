@@ -119,25 +119,8 @@ export default {
         fileContent = readFileSync(output_path);
       }
 
-      const audioExists = ffmpeg.hasAudio(output_path)
-      response.audio_video = audioExists
-
-      let textToAdd = "-vau"
-      if(audioExists === true || audioExists === 1){
-        textToAdd += "1"
-      } else {
-        textToAdd += "0"
-      }
-
-      // Verificar si `textToAdd` ya está presente
-      if (response.filename.includes(textToAdd)) {
-        let index = response.filename.lastIndexOf(".mp4")
-        // Insertar el texto justo antes de .mp4
-        response.filename = response.filename.slice(0, index) + textToAdd + response.filename.slice(index)
-      }
-
       // console.log('1', { response });
-      postConvertActions(response, fileContent, {
+      await postConvertActions(response, fileContent, {
         output,
         action: post_convert,
       });
@@ -303,7 +286,7 @@ export default {
         setFileName(output, output, response, _id);
 
         console.log('1', { response });
-        postConvertActions(response, fileContent, {
+        await postConvertActions(response, fileContent, {
           output,
           action: 'stream',
         });
@@ -383,7 +366,25 @@ const postConvertActions = async (
   const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
   if (options.action === 'upload') {
     const folder = path ? path : process.env.AWS_BUCKET_PATH || '';
-    const destFileName = `${folder}${response.filename}`;
+    let destFileName = `${folder}${response.filename}`;
+    const audioExists = ffmpeg.hasAudio(output_path)
+    response.audio_video = audioExists
+
+    let textToAdd = "-vau"
+    if(audioExists === true || audioExists === 1){
+      textToAdd += "1"
+    } else {
+      textToAdd += "0"
+    }
+
+    // Verificar si `textToAdd` ya está presente
+    if (destFileName.includes(textToAdd)) {
+      let index = destFileName.lastIndexOf(".mp4")
+      // Insertar el texto justo antes de .mp4
+      destFileName = destFileName.slice(0, index) + textToAdd + destFileName.slice(index)
+    }
+
+
 
     const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
     const resp1 = await upload({
