@@ -385,7 +385,7 @@ const postConvertActions = async (
     }
 
     // Verificar si `textToAdd` ya está presente
-    if (destFileName.includes(textToAdd)) {
+    if (!destFileName.includes(textToAdd)) {
       let index = destFileName.lastIndexOf(".mp4")
       // Insertar el texto justo antes de .mp4
       destFileName = destFileName.slice(0, index) + textToAdd + destFileName.slice(index)
