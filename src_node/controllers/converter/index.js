@@ -123,6 +123,7 @@ export default {
         output,
         action: post_convert,
         path,
+        output_path
       });
 
       // cleanup
@@ -289,6 +290,7 @@ export default {
           output,
           action: 'stream',
           path: '/chunk-uploads',
+          output_path
         });
 
         // cleanup
@@ -362,6 +364,7 @@ const postConvertActions = async (
     output: 'video',
     action: 'upload',
     path: '/',
+    output_path: ''
   }
 ) => {
   const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
@@ -371,7 +374,7 @@ const postConvertActions = async (
       ? options.path
       : process.env.AWS_BUCKET_PATH || '';
     let destFileName = `${folder}${response.filename}`;
-    const audioExists = ffmpeg.hasAudio(output_path)
+    const audioExists = ffmpeg.hasAudio(options.output_path)
     response.audio_video = audioExists
 
     let textToAdd = "-vau"
