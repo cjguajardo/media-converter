@@ -386,7 +386,9 @@ const postConvertActions = async (
 ) => {
   const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
   if (options.action === 'upload') {
-    const folder = path ? path : process.env.AWS_BUCKET_PATH || '';
+    const folder = options.path
+      ? options.path
+      : process.env.AWS_BUCKET_PATH || '';
     const destFileName = `${folder}${response.filename}`;
 
     const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
