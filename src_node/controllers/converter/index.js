@@ -119,12 +119,11 @@ export default {
         fileContent = readFileSync(output_path);
       }
 
-      // console.log('1', { response });
       await postConvertActions(response, fileContent, {
         output,
         action: post_convert,
+        path,
       });
-      // console.log('2', { response });
 
       // cleanup
       for (let p of paths_for_cleanup) {
@@ -289,6 +288,7 @@ export default {
         await postConvertActions(response, fileContent, {
           output,
           action: 'stream',
+          path: '/chunk-uploads',
         });
 
         // cleanup
@@ -361,11 +361,15 @@ const postConvertActions = async (
   options = {
     output: 'video',
     action: 'upload',
+    path: '/',
   }
 ) => {
   const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
   if (options.action === 'upload') {
-    const folder = path ? path : process.env.AWS_BUCKET_PATH || '';
+
+    const folder = options.path
+      ? options.path
+      : process.env.AWS_BUCKET_PATH || '';
     let destFileName = `${folder}${response.filename}`;
     const audioExists = ffmpeg.hasAudio(output_path)
     response.audio_video = audioExists
@@ -383,8 +387,6 @@ const postConvertActions = async (
       // Insertar el texto justo antes de .mp4
       destFileName = destFileName.slice(0, index) + textToAdd + destFileName.slice(index)
     }
-
-
 
     const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
     const resp1 = await upload({
