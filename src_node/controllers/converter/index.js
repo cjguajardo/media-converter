@@ -119,29 +119,31 @@ export default {
         fileContent = readFileSync(output_path);
       }
 
-      const audioExists = ffmpeg.hasAudio(output_path)
-      response.audio_video = audioExists
+      const audioExists = ffmpeg.hasAudio(output_path);
+      response.audio_video = audioExists;
 
-      let textToAdd = "-vau"
-      if(audioExists === true || audioExists === 1){
-        textToAdd += "1"
+      let textToAdd = '-vau';
+      if (audioExists === true || audioExists === 1) {
+        textToAdd += '1';
       } else {
-        textToAdd += "0"
+        textToAdd += '0';
       }
 
       // Verificar si `textToAdd` ya está presente
       if (response.filename.includes(textToAdd)) {
-        let index = response.filename.lastIndexOf(".mp4")
+        let index = response.filename.lastIndexOf('.mp4');
         // Insertar el texto justo antes de .mp4
-        response.filename = response.filename.slice(0, index) + textToAdd + response.filename.slice(index)
+        response.filename =
+          response.filename.slice(0, index) +
+          textToAdd +
+          response.filename.slice(index);
       }
 
-      // console.log('1', { response });
       postConvertActions(response, fileContent, {
         output,
         action: post_convert,
+        path,
       });
-      // console.log('2', { response });
 
       // cleanup
       for (let p of paths_for_cleanup) {
@@ -306,6 +308,7 @@ export default {
         postConvertActions(response, fileContent, {
           output,
           action: 'stream',
+          path: '/chunk-uploads',
         });
 
         // cleanup
@@ -378,6 +381,7 @@ const postConvertActions = async (
   options = {
     output: 'video',
     action: 'upload',
+    path: '/',
   }
 ) => {
   const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
