@@ -7,11 +7,12 @@ import uiController from './controllers/ui/index.js';
 import JWT from './utils/jwt.js';
 import { getClient } from './utils/db.js';
 import checkVerifier from './helpers/check_verifier.js';
+import { cleanTMPDirectory } from './controllers/converter/functions.js';
 
 const upload = multer({ dest: os.tmpdir() });
 const router = express.Router();
 
-const protected_urls = ['POST::/convert'];
+const protected_urls = ['POST::/convert__'];
 
 router.use(async (req, res, next) => {
   const { url, method, headers } = req;
@@ -21,6 +22,8 @@ router.use(async (req, res, next) => {
   const x_forwarded_host = headers['x-forwarded-host'] ?? 'unknown';
   const x_forwarded_proto = headers['x-forwarded-proto'] ?? 'unknown';
 
+  cleanTMPDirectory('/tmp');
+  cleanTMPDirectory('/app/tmp');
   if (protected_urls.indexOf(`${method}::${url}`) != -1) {
     const token = headers['authorization']?.replace('Bearer ', '');
     const verifier_token = headers['verifier'] ?? null;
