@@ -112,12 +112,8 @@ export default {
       const audioExists = ffmpeg.hasAudio(output_path);
       response.audio_video = audioExists;
 
-      let textToAdd = '-vau';
-      if (audioExists === true || audioExists === 1) {
-        textToAdd += '1';
-      } else {
-        textToAdd += '0';
-      }
+      const textToAdd =
+        '-vau' + (audioExists === true || audioExists === 1 ? '1' : '0');
 
       // Verificar si `textToAdd` ya está presente
       if (response.filename.includes(textToAdd)) {
@@ -133,6 +129,7 @@ export default {
         output,
         action: post_convert,
         path,
+        output_path,
       });
 
       // cleanup
@@ -262,8 +259,11 @@ export default {
         // }
         base64_content = base64_content.replaceAll('\n', '');
         // 2. turn base64 to file depending on base64 header
-        const mime_type = base64_content.split(';')[0].split(':')[1];
-        const output = mime_type.split('/')[0];
+        const mime_type = base64_content.split(';')[0].split(':')[1] ?? 'none';
+        if (mime_type === 'none') {
+          return res.status(400).json({ message: 'Invalid base64 header' });
+        }
+        const output = mime_type.split('/')[0] ?? 'video';
         const new_extension = fx.getExtensionFromMimeType(mime_type);
         writeFileSync(
           `${dir}/output${new_extension}`,
@@ -298,6 +298,7 @@ export default {
           output,
           action: 'upload',
           path: '/chunk-uploads',
+          output_path,
         });
 
         // cleanup
