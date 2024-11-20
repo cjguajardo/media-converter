@@ -6,7 +6,6 @@ import { unlink, readdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
 
 export const cleanup = async paths => {
-  return true;
   if (paths.length > 0) {
     for (let p of paths) {
       console.log('Removing: ', p);

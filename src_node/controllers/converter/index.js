@@ -251,11 +251,16 @@ export default {
           });
           base64_content += content;
         });
-        // const base64_crc = fx.crc32(base64_content);
-        // if (base64_crc !== _crc) {
-        //   console.log('CRC ERROR');
-        //   return res.status(400).json({ message: 'CRC ERROR' });
-        // }
+
+        const crc_enabled = process.env.ENABLE_CRC;
+        if (crc_enabled) {
+          const base64_crc = fx.crc32(base64_content);
+          if (base64_crc !== _crc) {
+            console.log('CRC ERROR');
+            return res.status(400).json({ message: 'CRC ERROR' });
+          }
+        }
+
         base64_content = base64_content.replaceAll('\n', '');
         // 2. turn base64 to file depending on base64 header
         const mime_type = base64_content.split(';')[0].split(':')[1] ?? 'none';
