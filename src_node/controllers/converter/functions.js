@@ -85,7 +85,7 @@ export const postConvertActions = async (
     }
     if (response.frame) {
       const frameContent = readFileSync(response.frame);
-      const destFrameName = `${folder}${response.frame.replace('tmp/', '')}`;
+      const destFrameName = `${folder}${response.frame.replace('/app/tmp/', '')}`;
       const resp2 = await upload({
         destFileName: destFrameName,
         fileContent: frameContent,
