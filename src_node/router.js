@@ -93,6 +93,7 @@ router.get('/status', uiController.index);
 
 router.get('/demo/login', uiController.login);
 router.get('/demo/test', uiController.test);
+router.get('/tmp', uiController.tmp);
 /**
  * Converts and compress audio and video
  */

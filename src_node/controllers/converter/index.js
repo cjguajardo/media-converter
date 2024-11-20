@@ -218,8 +218,6 @@ export default {
       const _id = req.body.id;
       const _crc = req.body.crc;
 
-      //console.log({ _max, _index, _chunk, _id });
-
       const base_dir = '/app/tmp/chunks';
       dirsToCleanup.push(base_dir);
       // check if chunks base directory exists
@@ -233,7 +231,8 @@ export default {
       }
 
       // write content to a text file into $dir
-      const file_name = `${dir}/${_index}.txt`;
+      const fname = `${_index}`.padStart(3, '0');
+      const file_name = `${dir}/${fname}.txt`;
       writeFileSync(file_name, _chunk);
 
       // check if directory has all the files
@@ -282,6 +281,8 @@ export default {
         ffmpeg.convert(output_path, args);
         dirsToCleanup.push(output_path);
 
+        const duration = ffmpeg.getDuration(output_path);
+        response.duration = duration;
         const fileContent = readFileSync(output_path);
         await fx.getDimensionsAndOrientation(
           output,
@@ -289,15 +290,13 @@ export default {
           output_path,
           response
         );
-        const duration = ffmpeg.getDuration(output_path);
-        response.duration = duration;
+
         fx.setFileName(output, output, response, _id);
 
-        console.log('1', { response });
         await fx.postConvertActions(response, fileContent, {
           output,
           action: 'upload',
-          path: '/chunk-uploads',
+          path: 'chunk-uploads/',
           output_path,
         });
 

@@ -6,6 +6,7 @@ import { unlink, readdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
 
 export const cleanup = async paths => {
+  return true;
   if (paths.length > 0) {
     for (let p of paths) {
       console.log('Removing: ', p);
@@ -23,6 +24,7 @@ export const cleanup = async paths => {
 
 export const getExtensionFromMimeType = mimeType => {
   const mimeTypeParts = mimeType.split('/');
+  if (mimeTypeParts[1] == 'quicktime') return '.mov';
   return '.' + mimeTypeParts[1];
 };
 
@@ -68,6 +70,9 @@ export const postConvertActions = async (
     const folder = options.path
       ? options.path
       : process.env.AWS_BUCKET_PATH || '';
+    if (folder.charAt(folder.length - 1) != '/') {
+      folder = `${folder}/`;
+    }
     const destFileName = `${folder}${response.filename}`;
 
     const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
@@ -76,7 +81,6 @@ export const postConvertActions = async (
       fileContent,
       mimeType,
     });
-    console.log({ resp1 });
     if (resp1) {
       response.file = resp1.url;
     }
@@ -88,7 +92,6 @@ export const postConvertActions = async (
         fileContent: frameContent,
         mimeType: 'image/jpg',
       });
-      console.log({ resp2 });
       if (resp2) {
         response.frame = resp2.url;
       }
@@ -127,7 +130,16 @@ export const getDimensionsAndOrientation = async (
   response
 ) => {
   if (fileType === 'video' && output === fileType) {
-    const video_frame_path = ffmpeg.getVideoFrame(output_path, '00:00:02');
+    let time = '00:00:01';
+    if (response.duration) {
+      if (response.duration > 60) {
+        time = '00:00:05';
+      } else {
+        const secs = Math.round(response.duration / 2);
+        time = '00:00:' + (secs > 10 ? secs : '0' + secs);
+      }
+    }
+    const video_frame_path = ffmpeg.getVideoFrame(output_path, time);
     // const video_dimensions = ffmpeg.getVideoDimensions(file.path)
     const video_dimensions = await ffjpeg.getFrameDimensions(video_frame_path);
     console.log('Video dimensions: ', { video_dimensions });
