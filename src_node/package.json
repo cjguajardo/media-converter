@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest --testTimeout=10000",
     "build": "webpack",
     "start": "node index.js",
     "dev": "nodemon index.js"

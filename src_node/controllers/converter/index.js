@@ -217,6 +217,7 @@ export default {
       const _chunk = req.body.chunk;
       const _id = req.body.id;
       const _crc = req.body.crc;
+      const _key = req.body.llave;
 
       const base_dir = '/app/tmp/chunks';
       dirsToCleanup.push(base_dir);
@@ -304,6 +305,8 @@ export default {
           path: 'chunk-uploads/',
           output_path,
         });
+
+        fx.postConvertCallback(response.file, response.mime, _key);
 
         // cleanup
         fx.cleanup(dirsToCleanup);

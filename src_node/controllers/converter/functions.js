@@ -75,6 +75,7 @@ export const postConvertActions = async (
     const destFileName = `${folder}${response.filename}`;
 
     const mimeType = options.output === 'video' ? 'video/mp4' : 'audio/mp3';
+    response.mime = mimeType;
     const resp1 = await upload({
       destFileName,
       fileContent,
@@ -106,6 +107,60 @@ export const postConvertActions = async (
   }
 
   return response;
+};
+
+export const postConvertCallback = async (filepath, filetype, key) => {
+  const pcc = process.env.POST_CONVERT_CALLBACK;
+  if (!pcc) return;
+  // GET|https://some-url|fileurl:file,filetype:tipo,key:llave
+  // get method, url and params from POST_CONVERT_CALLBACK
+  let [method, url, params] = pcc.split('|');
+  if (!method) return;
+  if (!url) return;
+
+  method = method.toUpperCase();
+  if (['GET', 'POST'].indexOf(method) === -1) return;
+
+  const keys = params.split(',');
+  const values = {
+    fileurl: filepath,
+    filetype: filetype,
+    key: key,
+  };
+  // build params object
+  const paramObject = {};
+  keys.forEach(p => {
+    const [key, key2] = p.split(':');
+    const valueToReturn = values[key];
+    paramObject[key2] = valueToReturn;
+  });
+  console.log({ paramObject, method, url });
+
+  const options = {
+    method,
+    headers: new Headers({
+      'Content-Type': 'application/json',
+    }),
+  };
+  if (method === 'GET') {
+    const urlParams = new URLSearchParams(paramObject);
+    url = url + '?' + urlParams.toString();
+  } else {
+    options.body = JSON.stringify(paramObject);
+  }
+
+  try {
+    const response = await fetch(url, options);
+    console.log('POST_CONVERT_CALLBACK::RESPONSE', { response });
+    if (response && response.ok) {
+      const data = await response.text();
+      console.log({ data });
+    }
+    return paramObject;
+  } catch (err) {
+    console.log('POST_CONVERT_CALLBACK::ERROR', { err });
+    return null;
+  }
 };
 
 export const setFileName = (output, fileType, response, fileName) => {
