@@ -11,6 +11,11 @@ const PRESET = {
   SLOWER: 'slower',
   VERYSLOW: 'veryslow',
 };
+const CODEC = {
+  H264: 'libx264',
+  H265: 'libx265',
+  VP9: 'libvpx-vp9',
+};
 
 const exec = (cmd, args) => {
   try {
@@ -43,7 +48,7 @@ export const getBasicVideoParams = filePath => {
     '-r',
     '24',
     '-c:v',
-    'libx265',
+    CODEC.H264,
     '-pix_fmt',
     'yuv420p',
     '-preset',
